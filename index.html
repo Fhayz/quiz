@@ -9,13 +9,85 @@
       font-family: 'Arial', sans-serif;
       text-align: center;
       margin: 20px;
+      background-color: #000; 
+      color: #fff; 
     }
     #quiz-container {
       display: none;
+      margin: 0 auto;
+      max-width: 600px; 
+      background-color: #222; 
+      padding: 20px;
+      border: 2px solid #444; /* Ash outline color */
+      border-radius: 10px;
     }
     #question-container {
       margin-top: 20px;
     }
+    input[type="radio"] {
+    display: none;
+  }
+
+  label {
+    display: inline-block;
+    padding: 10px;
+    margin: 5px;
+    background-color: #969090;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  label:hover {
+    background-color: #5a5858;
+  }
+
+  input[type="radio"]:checked + label {
+    background-color: #4caf50;
+    color: #fff;
+  }
+  
+input[type="text"] {
+ 
+  padding: 10px;
+  margin: 5px;
+  width: 300px; 
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box; 
+}
+
+button {
+  /* Style the button */
+  padding: 10px 20px;
+  background-color: #4caf50; 
+  color: #fff; 
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+ 
+  background-color: #287c2c; 
+}
+
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/*focus state */
+input[type="text"]:focus {
+  outline: none;
+  border-color: #4caf50; 
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.7);
+}
+
     #result-container {
       display: none;
       text-align: center;
@@ -46,6 +118,9 @@
     #score-text-path {
       font-size: 16px;
     }
+    .multiple-choice{
+        color: brown;
+    }
   </style>
 </head>
 <body>
@@ -55,6 +130,8 @@
     <input type="text" id="name" />
     <button onclick="startQuiz()">Start Quiz</button>
   </div>
+
+  <div id="greeting-container" style=""></div><br>
 
   <div id="quiz-container">
     <div id="timer"></div>
@@ -72,9 +149,44 @@
 
   <script>
     const questions = [
-      { question: 'What is the capital of France?', options: ['Berlin', 'Madrid', 'Paris', 'Rome'], correctAnswer: 'Paris' },
-      { question: 'What is your favourite food?', options: ['Beans', 'Garri', 'oil', 'fish'], correctAnswer: 'fish' },
-      // Add more questions as needed
+      { question: 'Scenario: A designer is working on a new website and wants to ensure optimal user interaction pace. Which UI/UX principle should they consider, and what is the specific threshold mentioned?', type:`multiple-choice`, options: [`Fitts's Law- 200ms`, `Doherty Threshold-400ms`, `Hick's Law-600ms`, `Law of Proximity-300ms`], correctAnswer: 'Doherty Threshold-400ms' },
+      { question: 'Scenario: A team is designing a navigation menu for an e-commerce website. Which law suggests that users prefer the site to be designed similarly to other sites they use?',type:`multiple-choice`, options: ['A) Law of Similarity', `C) Jacob's Law`, `D) Pareto Principle`, `B) Aesthetic-Usability Effect`], correctAnswer: `C) Jacob's Law` },
+      { question: 'Scenario: A designer is working on the visual elements of a website to enhance its usability. Which principle indicates that users perceive visually pleasing sites as more usable?', type:`multiple-choice`, options: [`A)Law of Prägnanz`, `B) Aesthetic-Usability Effect`, `C) Fitts’s Law` , `D) Miller’s Law`], correctAnswer: `B) Aesthetic-Usability Effect`
+      },
+      
+      { question:`Scenario: A designer wants to reduce decision-making time on a complex website. Which law suggests that the time it takes to make a decision increases with the number and complexity of choices?`, type:'multiple-choice' , options:[`A) Hick’s Law`,`B) Law of Proximity`, `C)Miller’s Law`, `D) Pareto Principle`],
+      correctAnswer: `A) Hick's Law`
+      },
+
+      {question:`Scenario: A team is designing a mobile app, and they want to optimize touch interaction. Which law suggests that the time to acquire a target is a function of the distance to and size of the target?`, type:'multiple-choice',
+        options:[`A) Doherty Threshold`,`Fitts's Law`,`Law of Similarity`,`Law of Prägnanz`],
+        correctAnswer:`B) Fitts's Law`
+
+      },
+
+      {
+        question:`Scenario: A team is designing a mobile app, and they want to optimize touch interaction. Which law suggests that the time to acquire a target is a function of the distance to and size of the target?`, type:"text-input",
+        correctAnswer:` Fitts's Law`
+      },
+
+      {
+        question:`Scenario: A designer is creating icons for a mobile app. wich law advises using simple and clear shapes, icons, and graphics, also advices to avoid unnecessary deatils and clutter?`, type: 'text-input', correctAnswer: `Law of Prägnaz`
+      },
+
+      {
+        question:`Senario: A designer is organizing content on a webiste.  which law recommends using whitespace and alignment to create visual hierarchy and structure?`, type: 'multiple-choice', options:[`A) Law of Proximity`, `B) Law of Prägnanz`, `C) Miller's Law`, `D) Pareto Principle`], correctAnswer:`B) Law of Proximity`
+      },
+
+      {
+        question: `Scenerio: A team is designing a user interface for complex system. Which principle advises limiting the amount of information and actions to aviod overwhelming users?`, type:`multiple-choice`, options:[`A) Miller's Law`, `B) Aesthetic-Usability Effect`, `C) Doherty Threshold`, `D) Pareto Principle`],  correctAnswer: `A) Miller's Law`
+      },
+
+      {
+        question: `Scenerio: A designer is prioritizing fetures for a new application. Which principle suggests focusing on the most important and frequent tasks that user need?`, type:`text-input`,   correctAnswer: `Pareto Principle`
+      },
+      {
+        question: 'What law was not observed at this page and where?', type:'text-input', correctAnswer: `I don't Know`
+      }
     ];
 
     let currentQuestionIndex = 0;
@@ -89,7 +201,8 @@
         alert('Please enter your name.');
         return;
       }
-
+      document.getElementById('greeting-container').innerHTML = `Hello, ${name}! &#128512`;
+    
       document.getElementById('name-container').style.display = 'none';
       document.getElementById('quiz-container').style.display = 'block';
 
@@ -98,61 +211,146 @@
     }
 
     function displayQuestion() {
-      const questionContainer = document.getElementById('question-container');
+      const questionContainer = document.getElementById('question-container'); 
       const currentQuestion = questions[currentQuestionIndex];
 
       if (currentQuestion) {
-        questionContainer.innerHTML = `<h2>${currentQuestion.question}</h2>`;
-        currentQuestion.options.forEach((option, index) => {
-          questionContainer.innerHTML += `<input type="radio" name="answer" value="${option}" id="option${index + 1}">
-                                          <label for="option${index + 1}">${option}</label><br>`;
-        });
+        questionContainer.innerHTML = `<h2>${currentQuestion.question}</h2> <br>` ;
+
+        if (currentQuestion.type ==='multiple-choice'){
+            currentQuestion.options.forEach((option, index)=>{
+                questionContainer.innerHTML += `<input type="radio" name="answer" value="${option}" id="option${index + 1}">
+                <label for="option${index + 1}">${option}</label><br> `
+            });
+        }else if (currentQuestion.type === 'text-input'){
+            questionContainer.innerHTML += `<input type="text" id="text-answer" placeholder="Type your answer">`
+        }
+        // currentQuestion.options.forEach((option, index) => {
+        //   questionContainer.innerHTML += `<input type="radio" name="answer" value="${option}" id="option${index + 1}">
+        //                                   <label for="option${index + 1}">${option}</label><br>`;
+        // });
       } else {
         endQuiz();
       }
     }
 
-    function nextQuestion() {
-      const selectedOption = document.querySelector('input[name="answer"]:checked');
+//     function nextQuestion() {
+//       const currentQuestion = questions[currentQuestionIndex];
+//       let selectedOption;
 
-      if (selectedOption) {
-        const isCorrect = selectedOption.value === questions[currentQuestionIndex].correctAnswer;
+//       if (currentQuestion.type === 'multiple-choice') {
+//         selectedOption = document.querySelector('input[name="answer"]:checked');
+//       } else if (currentQuestion.type === 'text-input') {
+//         selectedOption = document.getElementById('text-answer');
+//       }
 
-        userResponses.push({
-          question: questions[currentQuestionIndex].question,
-          chosenOption: selectedOption.value,
-          isCorrect: isCorrect
-        });
+//       if (selectedOption || currentQuestion.type === 'text-input') {
+//     const isCorrect = currentQuestion.type === 'text-input' ?
+//       checkAnswer(selectedOption.value, currentQuestion.correctAnswer) :
+//       checkAnswer(selectedOption.value, currentQuestion.correctAnswer);
 
-        if (isCorrect) {
-          score++;
-        }
+//     userResponses.push({
+//       question: currentQuestion.question,
+//       chosenOption: selectedOption ? selectedOption.value : '',
+//       isCorrect: isCorrect
+//     });
 
-        currentQuestionIndex++;
-        displayQuestion();
-        updateScore();
-        resetTimer();
-      } else {
-        alert('Please select an answer.');
-      }
+//     if (isCorrect) {
+//       score++;
+//     }
+
+//     currentQuestionIndex++;
+//     if (currentQuestionIndex < questions.length) {
+//       displayQuestion();
+//       updateScore();
+//       resetTimer();
+//     } else {
+//       endQuiz();
+//     }
+//   } else {
+//     alert('Please provide an answer.');
+//   }
+// }
+
+//     //   if (selectedOption || currentQuestion.type === 'text-input') {
+//     //     const isCorrect = checkAnswer(selectedOption.value, currentQuestion.correctAnswer);
+
+//     //     userResponses.push({
+//     //       question: currentQuestion.question,
+//     //       chosenOption: selectedOption.value,
+//     //       isCorrect: isCorrect
+//     //     });
+
+//     //     if (isCorrect) {
+//     //       score++;
+//     //     }
+
+//     //     currentQuestionIndex++;
+//     //     displayQuestion();
+//     //     updateScore();
+//     //     resetTimer();
+//     //   } else {
+//     //     alert('Please provide an answer.');
+//     //   }
+//     // }
+function nextQuestion() {
+  const currentQuestion = questions[currentQuestionIndex];
+  let selectedOption;
+
+  if (currentQuestion.type === 'multiple-choice') {
+    selectedOption = document.querySelector('input[name="answer"]:checked');
+  } else if (currentQuestion.type === 'text-input') {
+    selectedOption = document.getElementById('text-answer');
+  }
+
+  if (selectedOption || currentQuestion.type === 'text-input') {
+    const isCorrect = currentQuestion.type === 'text-input' ?
+      checkAnswer(selectedOption.value, currentQuestion.correctAnswer) :
+      checkAnswer(selectedOption.value, currentQuestion.correctAnswer);
+
+    userResponses.push({
+      question: currentQuestion.question,
+      chosenOption: selectedOption ? selectedOption.value : '',
+      isCorrect: isCorrect
+    });
+
+    if (isCorrect) {
+      score++;
+    }
+
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+      displayQuestion();
+      updateScore();
+    } else {
+      endQuiz();
+    }
+  } else {
+    alert('Please provide an answer.');
+  }
+}
+   
+    function checkAnswer(userAnswer, correctAnswer) {
+     
+      return userAnswer.toLowerCase() === correctAnswer.toLowerCase();
     }
 
     function startTimer() {
-      let timeLeft = 30 * 60; // Set the time limit for the entire quiz (in seconds)
+  let timeLeft = 5 * 60; // Set the time limit for the entire quiz (in seconds)
 
-      timer = setInterval(function () {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        document.getElementById('timer').innerText = `Time Left: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  timer = setInterval(function () {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    document.getElementById('timer').innerText = `Time Left: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-        if (timeLeft <= 0) {
-          clearInterval(timer);
-          endQuiz();
-        }
-
-        timeLeft--;
-      }, 1000);
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      endQuiz();
     }
+
+    timeLeft--;
+  }, 1000);
+}
 
     function resetTimer() {
       clearInterval(timer);
