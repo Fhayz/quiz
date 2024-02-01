@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz App</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #quiz-container {
+      display: none;
+    }
+    #question-container {
+      margin-top: 20px;
+    }
+    #result-container {
+      display: none;
+      text-align: center;
+    }
+    #timer {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 18px;
+    }
+    .correct {
+      color: green;
+    }
+    .wrong {
+      color: red;
+    }
+    #score-container {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    #final-score {
+      font-size: 24px;
+      margin-left: 10px;
+    }
+    #score-text-path {
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="name-container">
+    <label for="name">Enter your name:</label>
+    <input type="text" id="name" />
+    <button onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <div id="quiz-container">
+    <div id="timer"></div>
+    <div id="question-container"></div>
+    <button onclick="nextQuestion()">Next</button>
+  </div>
+
+  <div id="result-container">
+    <div id="score-container">
+      <p>Your total score is</p>
+      <p id="final-score"></p>
+    </div>
+    <div id="answers-container"></div>
+  </div>
+
+  <script>
+    const questions = [
+      { question: 'Where is your dog?', options: ['Berlin', 'Madrid', 'Paris', 'Rome'], correctAnswer: 'Paris' },
+      { question: 'What is your favourite food?', options: ['Beans', 'Garri', 'oil', 'fish'], correctAnswer: 'fish' },
+      // Add more questions as needed
+    ];
+
+    let currentQuestionIndex = 0;
+    let userResponses = [];
+    let score = 0;
+    let timer;
+
+    function startQuiz() {
+      const name = document.getElementById('name').value;
+
+      if (!name) {
+        alert('Please enter your name.');
+        return;
+      }
+
+      document.getElementById('name-container').style.display = 'none';
+      document.getElementById('quiz-container').style.display = 'block';
+
+      displayQuestion();
+      startTimer();
+    }
+
+    function displayQuestion() {
+      const questionContainer = document.getElementById('question-container');
+      const currentQuestion = questions[currentQuestionIndex];
+
+      if (currentQuestion) {
+        questionContainer.innerHTML = `<h2>${currentQuestion.question}</h2>`;
+        currentQuestion.options.forEach((option, index) => {
+          questionContainer.innerHTML += `<input type="radio" name="answer" value="${option}" id="option${index + 1}">
+                                          <label for="option${index + 1}">${option}</label><br>`;
+        });
+      } else {
+        endQuiz();
+      }
+    }
+
+    function nextQuestion() {
+      const selectedOption = document.querySelector('input[name="answer"]:checked');
+
+      if (selectedOption) {
+        const isCorrect = selectedOption.value === questions[currentQuestionIndex].correctAnswer;
+
+        userResponses.push({
+          question: questions[currentQuestionIndex].question,
+          chosenOption: selectedOption.value,
+          isCorrect: isCorrect
+        });
+
+        if (isCorrect) {
+          score++;
+        }
+
+        currentQuestionIndex++;
+        displayQuestion();
+        updateScore();
+        resetTimer();
+      } else {
+        alert('Please select an answer.');
+      }
+    }
+
+    function startTimer() {
+      let timeLeft = 30 * 60; // Set the time limit for the entire quiz (in seconds)
+
+      timer = setInterval(function () {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timer').innerText = `Time Left: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          endQuiz();
+        }
+
+        timeLeft--;
+      }, 1000);
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      startTimer();
+    }
+
+    function endQuiz() {
+      document.getElementById('quiz-container').style.display = 'none';
+      document.getElementById('result-container').style.display = 'block';
+      document.getElementById('final-score').innerText = `${score}/${questions.length}`;
+
+      displayUserResponses();
+      updateScore();
+    }
+
+    function displayUserResponses() {
+      const answersContainer = document.getElementById('answers-container');
+      answersContainer.innerHTML = '<h3>Your Responses:</h3>';
+      
+      userResponses.forEach((response, index) => {
+        const feedbackClass = response.isCorrect ? 'correct' : 'wrong';
+        const feedbackSymbol = response.isCorrect ? '✅' : '❌';
+
+        answersContainer.innerHTML += `<p>${index + 1}. ${response.question}<br>
+                                       Your Answer: ${response.chosenOption} <span class="${feedbackClass}">${feedbackSymbol}</span></p>`;
+      });
+    }
+
+    function updateScore() {
+      document.getElementById('final-score').innerText = `${score}/${questions.length}`;
+    }
+  </script>
+
+</body>
+</html>
